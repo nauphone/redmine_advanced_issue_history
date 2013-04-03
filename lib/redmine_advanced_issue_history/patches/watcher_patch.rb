@@ -20,7 +20,7 @@ module RedmineAdvancedIssueHistory
             issue = self.watchable
             user = User.current
             note = "Watcher #{self.user.name} was added"
-            journal = Journal.new(:journalized => issue, :user => user, :notes => note, :is_system_note=> true)
+            journal = Journal.new(:journalized => issue, :user => user, :notes => note, :notify => false, :is_system_note=> true)
             journal.save
           end
         end
