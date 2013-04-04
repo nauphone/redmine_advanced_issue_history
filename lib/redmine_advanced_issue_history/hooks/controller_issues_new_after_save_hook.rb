@@ -19,6 +19,16 @@ module RedmineAdvancedIssueHistory
           journal = Journal.new(:journalized => Issue.find(issue_params[:parent_issue_id]), :user => User.current, :notes => note, :is_system_note => true)
           journal.save
         end
+        if issue.closed? and !issue.relations_from.empty?
+          issue.relations_from.each do |relation|
+            if relation.relation_type == IssueRelation::TYPE_BLOCKS
+              blocked_issue = relation.issue_to_id
+              note = "Блокирующая задача '#{issue}' была закрыта"
+              journal = Journal.new(:journalized => Issue.find(blocked_issue), :user => User.current, :notes => note, :is_system_note => true)
+              journal.save
+            end
+          end
+        end
       end
 
       def controller_issues_new_after_save(context={})
