@@ -27,6 +27,9 @@ Dispatcher.to_prepare :redmine_advanced_issue_history do
   require_dependency 'watcher'
   Watcher.send(:include, RedmineAdvancedIssueHistory::Patches::WatcherPatch)
 
+  require_dependency 'mailer'
+  Mailer.send(:include, RedmineAdvancedIssueHistory::Patches::MailerPatch)
+
   require_dependency 'watchers_controller'
   WatchersController.send(:include, RedmineAdvancedIssueHistory::Patches::WatchersControllerPatch)
 end
