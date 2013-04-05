@@ -33,10 +33,10 @@ module RedmineAdvancedIssueHistory
           # ilya
           if @relation.errors.empty? && request.post?
             note = "Relation '#{@relation.type}' to '#{@relation.issue_to}' was created"
-            journal = Journal.new(:journalized => @issue, :user => User.current, :notes => note, :is_system_note=> true)
+            journal = Journal.new(:journalized => @relation.issue_from, :user => User.current, :notes => note, :is_system_note=> true)
             journal.save
 
-            note = "Relation '#{@relation.type}' to '#{@issue}' was created"
+            note = "Relation '#{@relation.type}' to '#{@relation.issue_from}' was created"
             journal = Journal.new(:journalized => @relation.issue_to, :user => User.current, :notes => note, :is_system_note=> true)
             journal.save
           end
