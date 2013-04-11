@@ -32,35 +32,20 @@ module RedmineAdvancedIssueHistory
 
           # ilya
           if @relation.errors.empty? && request.post?
-            note = "Relation '#{@relation.type}' to '#{@relation.issue_to}' was created"
+            note = "Relation '#{@relation.relation_type}' to '#{@relation.issue_to}' was created"
             journal = Journal.new(:journalized => @relation.issue_from, :user => User.current, :notes => note, :is_system_note=> true)
             journal.save
 
-            note = "Relation '#{@relation.type}' to '#{@relation.issue_from}' was created"
+            note = "Relation '#{@relation.relation_type}' to '#{@relation.issue_from}' was created"
             journal = Journal.new(:journalized => @relation.issue_to, :user => User.current, :notes => note, :is_system_note=> true)
             journal.save
           end
           # /ilya
 
           respond_to do |format|
-            format.html { redirect_to :controller => 'issues', :action => 'show', :id => @issue }
+            format.html { redirect_to redirect_to issue_path(@issue) }
             format.js do
-              @relations = @issue.relations.select {|r| r.other_issue(@issue) && r.other_issue(@issue).visible? }
-              render :update do |page|
-                page.replace_html "relations", :partial => 'issues/relations'
-
-                # ilya
-                @journals = @issue.journals.find(:all, :include => [:user, :details], :order => "#{Journal.table_name}.created_on ASC")
-                @journals.each_with_index {|j,i| j.indice = i+1}
-                @journals.reverse! if User.current.wants_comments_in_reverse_order?
-                page.replace_html "history", :partial => 'issues/history', :locals => { :issue => @issue, :journals => @journals }
-                # /ilya
-
-                if @relation.errors.empty?
-                  page << "$('relation_delay').value = ''"
-                  page << "$('relation_issue_to_id').value = ''"
-                end
-              end
+              @relations = @issue.reload.relations.select {|r| r.other_issue(@issue) && r.other_issue(@issue).visible? }
             end
             format.api {
               if saved
@@ -80,30 +65,18 @@ module RedmineAdvancedIssueHistory
           @relation.destroy
 
           # ilya
-          note = "Relation '#{@relation.type}' to '#{@relation.issue_to}' was destroyed"
+          note = "Relation '#{@relation.relation_type}' to '#{@relation.issue_to}' was destroyed"
           journal = Journal.new(:journalized => @relation.issue_from, :user => User.current, :notes => note, :is_system_note=> true)
           journal.save
 
-          note = "Relation '#{@relation.type}' to '#{@relation.issue_from}' was destroyed"
+          note = "Relation '#{@relation.relation_type}' to '#{@relation.issue_from}' was destroyed"
           journal = Journal.new(:journalized => @relation.issue_to, :user => User.current, :notes => note, :is_system_note=> true)
           journal.save
           # /ilya
 
           respond_to do |format|
-            format.html { redirect_to issue_path } # TODO : does this really work since @issue is always nil? What is it useful to?
-            format.js   { 
-              render(:update) { |page|
-
-                # ilya
-                @journals = @issue.journals.find(:all, :include => [:user, :details], :order => "#{Journal.table_name}.created_on ASC")
-                @journals.each_with_index {|j,i| j.indice = i+1}
-                @journals.reverse! if User.current.wants_comments_in_reverse_order?
-                page.replace_html "history", :partial => 'issues/history', :locals => { :issue => @issue, :journals => @journals }
-                # /ilya
-                
-                page.remove "relation-#{@relation.id}"
-              }
-            }
+            format.html { redirect_to issue_path(@relation.issue_from) } 
+            format.js   
             format.api  { head :ok }
           end
         end

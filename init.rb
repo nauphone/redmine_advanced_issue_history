@@ -12,8 +12,7 @@ Redmine::Plugin.register :redmine_advanced_issue_history do
 end
 
 
-require 'dispatcher'
-Dispatcher.to_prepare :redmine_advanced_issue_history do
+ActionDispatch::Callbacks.to_prepare  do
   if Redmine::VERSION.to_s >= '1.4.0'
     # tested for 1.4.4
     require 'redmine_advanced_issue_history/patches/issue_relations_controller_patch_1_4'

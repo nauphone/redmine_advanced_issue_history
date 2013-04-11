@@ -1,3 +1,4 @@
+#encoding: utf-8
 module RedmineAdvancedIssueHistory
   module Hooks
     class ControllerIssuesNewAfterSaveHook < Redmine::Hook::ViewListener

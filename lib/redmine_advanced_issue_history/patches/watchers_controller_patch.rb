@@ -17,11 +17,10 @@ module RedmineAdvancedIssueHistory
       module InstanceMethods
 
         def destroy_with_update_history
-          @watched.set_watcher(User.find(params[:user_id]), false) if request.post?
+          @watched.set_watcher(User.find(params[:user_id]), false)
 
           # ilya
-          if request.post?
-            if @watched.class.name == 'Issue'
+          if @watched.class.name == 'Issue'
               issue = @watched
               user = User.current
               watcher = User.find(params[:user_id])
@@ -29,17 +28,12 @@ module RedmineAdvancedIssueHistory
               journal = Journal.new(:journalized => issue, :user => user, :notes => note, :is_system_note=> true)
               journal.save
             end
-          end
           # /ilya
 
           respond_to do |format|
             format.html { redirect_to :back }
-            format.js do
-              render :update do |page|
-                page.replace_html 'watchers', :partial => 'watchers/watchers', :locals => {:watched => @watched}
-              end
-            end
-          end
+            format.js           
+	  end
         end
       end
     end

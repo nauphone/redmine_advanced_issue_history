@@ -7,6 +7,7 @@ module RedmineAdvancedIssueHistory
         base.send(:include, InstanceMethods)
         base.class_eval do
           unloadable
+	  after_save :after_create
         end
       end
 
@@ -24,7 +25,7 @@ module RedmineAdvancedIssueHistory
             journal.save
             if Setting.notified_events.include?('issue_updated') ||
                         (Setting.notified_events.include?('issue_note_added') && journal.notes.present?)
-              Mailer.deliver_watcher_add(journal, self.user.mail)
+              Mailer.watcher_add(journal, self.user.mail).deliver
             end
           end
         end
