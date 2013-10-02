@@ -24,7 +24,7 @@ module RedmineAdvancedIssueHistory
           issue.relations_from.each do |relation|
             if relation.relation_type == IssueRelation::TYPE_BLOCKS
               blocked_issue = relation.issue_to_id
-              note = "Блокирующая задача '#{issue}' была закрыта"
+              note = "Blocking task '#{issue}' was closed"
               journal = Journal.new(:journalized => Issue.find(blocked_issue), :user => User.current, :notes => note, :is_system_note => true)
               journal.save
             end
