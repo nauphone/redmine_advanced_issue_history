@@ -37,7 +37,7 @@ module RedmineAdvancedIssueHistory
             open_issues.append(issue)
           end
           unless open_issues.any?
-            root_task_note = "All sub task was closed"
+            root_task_note = "All subtasks were closed"
             root_task_journal = Journal.new(:journalized => root_issue, :user => User.current, :notes => root_task_note, :is_system_note=> true)
             root_task_journal.save
           end
@@ -59,7 +59,7 @@ module RedmineAdvancedIssueHistory
           root_issue = issue.root
           open_issues = root_issue.descendants.reject {|x| x if x.closed? }
           unless open_issues.any?
-            root_task_note = "All sub task was closed"
+            root_task_note = "All subtasks were closed"
             root_task_journal = Journal.new(:journalized => root_issue, :user => User.current, :notes => root_task_note, :is_system_note=> true)
             root_task_journal.save
           end
