@@ -35,7 +35,7 @@ module RedmineAdvancedIssueHistory
           open_issues = root_issue.descendants.reject {|x| x if x.closed? or x == issue}
           unless IssueStatus.find(issue_params[:status_id].to_i).is_closed?
             open_issues.append(issue)
-          end
+          end if :status_id.in? issue_params
           unless open_issues.any?
             root_task_note = "All subtasks were closed"
             root_task_journal = Journal.new(:journalized => root_issue, :user => User.current, :notes => root_task_note, :is_system_note=> true)
