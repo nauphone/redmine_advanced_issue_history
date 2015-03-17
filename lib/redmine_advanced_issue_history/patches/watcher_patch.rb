@@ -48,8 +48,8 @@ module RedmineAdvancedIssueHistory
           else
             user_ids << params[:user_id]
           end
-          user_ids = user_ids.flatten.compact.uniq
           if user_ids.any?
+            user_ids = user_ids.flatten.compact.uniq
             user_ids.each do |user_id|
               user = User.find(user_id)
               @watched.add_watcher(user)

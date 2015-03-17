@@ -61,7 +61,6 @@ module RedmineAdvancedIssueHistory
             notes_by_issue[parent_issue] << "All subtasks were closed"
           end
         end
-        user_ids = user_ids.flatten.compact.uniq
         notes_by_issue.each do |issue,notes|
           add_system_journal(notes, issue)
         end
