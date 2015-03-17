@@ -8,4 +8,4 @@ Events in Issue History:
 * system history log not editable [done]
 * email notification for all this [todo]
 
-* compatible with Redmine version 1.4.4
+* compatible with Redmine version 2.3.3

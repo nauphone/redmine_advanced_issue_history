@@ -1,6 +1,11 @@
 require 'redmine'
 
-require 'journals_helper_patch' # history are not ediatable for system notes
+require 'redmine_advanced_issue_history/hooks/controller_issues_new_after_save_hook'
+require 'redmine_advanced_issue_history/hooks/issue_history_tab_hook'
+require 'redmine_advanced_issue_history/patches/issue_relations_patch'
+require 'redmine_advanced_issue_history/patches/issues_helper_patch'
+require 'redmine_advanced_issue_history/patches/watcher_patch'
+require 'redmine_advanced_issue_history/patches/journal_patch'
 
 Redmine::Plugin.register :redmine_advanced_issue_history do
   name 'Redmine Advanced Issue History plugin'
@@ -11,26 +16,17 @@ Redmine::Plugin.register :redmine_advanced_issue_history do
   author_url ''
 end
 
-
-ActionDispatch::Callbacks.to_prepare  do
-  if Redmine::VERSION.to_s >= '1.4.0'
-    # tested for 1.4.4
-    require 'redmine_advanced_issue_history/patches/issue_relations_controller_patch_1_4'
-  else
-    # redmine 1.2.x
-    require 'redmine_advanced_issue_history/patches/issue_relations_controller_patch'
+def add_system_journal(notes, issue)
+  journal_detail_ids = []
+  notes.each do |note|
+    journal_details = JournalDetail.new
+    journal_details.property = 'system'
+    journal_details.prop_key = 'system'
+    journal_details.value = note
+    journal_details.save!
+    journal_detail_ids.append(journal_details.id)
   end
-  require_dependency 'issue_relations_controller'
-  IssueRelationsController.send(:include, RedmineAdvancedIssueHistory::Patches::IssueRelationsControllerPatch)
-
-  require_dependency 'watcher'
-  Watcher.send(:include, RedmineAdvancedIssueHistory::Patches::WatcherPatch)
-
-  require_dependency 'mailer'
-  Mailer.send(:include, RedmineAdvancedIssueHistory::Patches::MailerPatch)
-
-  require_dependency 'watchers_controller'
-  WatchersController.send(:include, RedmineAdvancedIssueHistory::Patches::WatchersControllerPatch)
+  journal = Journal.new(:journalized => issue, :user => User.current, :notes => "")
+  journal.detail_ids = journal_detail_ids
+  journal.save!
 end
-
-require 'redmine_advanced_issue_history/hooks/controller_issues_new_after_save_hook'
