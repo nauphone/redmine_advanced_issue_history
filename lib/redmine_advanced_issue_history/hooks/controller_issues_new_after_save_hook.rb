@@ -22,6 +22,7 @@ module RedmineAdvancedIssueHistory
         if issue.closed? and !issue.relations_from.empty?
           issue.relations_from.each do |relation|
             if relation.relation_type == IssueRelation::TYPE_BLOCKS
+              blocked_issue = relation.issue_to_id
               notes_by_issue[Issue.find(blocked_issue)] ||= []
               notes_by_issue[Issue.find(blocked_issue)] << "Blocking task '#{issue}' was closed"
             end
