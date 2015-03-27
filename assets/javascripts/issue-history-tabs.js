@@ -1,6 +1,6 @@
 function add_new_tab(id, url, tab_header, tab_content) {
   var header_content = '<li>';
-  header_content += '<a href="' + url + '?tab=' + id + '" id="tab-' + id + '" onclick="showTab(\'' + id + '\', this.href); this.blur(); return false;" class="no_line in_link" data-remote="true"><span>' + tab_header + '</span></a>';
+  header_content += '<a href="' + url + '?tab=' + id + '" id="tab-' + id + '" onclick="showTab(\'' + id + '\'); this.blur(); return false;" class="no_line in_link" data-remote="true"><span>' + tab_header + '</span></a>';
   header_content += '</li>';
   $('#history_tabs > .tabs > ul:first').append(header_content);
 

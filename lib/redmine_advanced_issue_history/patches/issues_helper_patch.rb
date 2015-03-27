@@ -7,6 +7,7 @@ module IssuesHelperPatch
     base.send(:include, InstanceMethods)
     base.class_eval do
       alias_method_chain :show_detail, :advanced
+      alias_method_chain :users_for_new_issue_watchers, :advanced
     end
   end
 
@@ -19,6 +20,15 @@ module IssuesHelperPatch
       end
 
     end
+
+    def users_for_new_issue_watchers_with_advanced(issue)
+      users = users_for_new_issue_watchers_without_advanced(issue)
+      if issue.project.users.count > 20
+        users = users + issue.project.users
+      end
+      users.sort_by(&:name)
+    end
+
   end
 end
 

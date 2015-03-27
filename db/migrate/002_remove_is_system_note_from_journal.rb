@@ -14,7 +14,7 @@ class RemoveIsSystemNoteFromJournal < ActiveRecord::Migration
 
   def self.down
     add_column :journals, :is_system_note, :boolean
-    JournalDetail.where(:property => 'system').each do |journal_detail|
+    JournalDetail.where(:property => 'system').to_a.each do |journal_detail|
       journal = journal_detail.journal
       journal.notes = journal_detail.value
       journal.save!

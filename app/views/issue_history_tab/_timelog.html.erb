@@ -1,4 +1,4 @@
-<% @time_entries = @issue.time_entries.find(:all, :include => [:user, :activity], :order => "#{TimeEntry.table_name}.spent_on DESC") %>
+<% @time_entries = @issue.time_entries.order("#{TimeEntry.table_name}.spent_on DESC").to_a %>
 
 <% if @time_entries.count > 0 %>
   <div id="issue_timelog">
