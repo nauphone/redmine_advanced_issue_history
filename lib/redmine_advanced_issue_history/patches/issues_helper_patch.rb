@@ -16,7 +16,7 @@ module IssuesHelperPatch
       if detail.property == 'system'
         return detail.value
       else
-        return show_detail_without_advanced(detail, no_html=false, options={})
+        return show_detail_without_advanced(detail, no_html, options)
       end
 
     end
