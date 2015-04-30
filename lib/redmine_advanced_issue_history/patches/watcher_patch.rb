@@ -75,41 +75,45 @@ module RedmineAdvancedIssueHistory
       def self.included(base)
         base.send(:include, InstanceMethods)
         base.class_eval do
-          alias_method_chain :watcher_user_ids=, :advanced
+        alias_method_chain :create_journal, :advanced_history
+        alias_method_chain :init_journal, :advanced_history
+        attr_accessor :issue_watchers_advanced_history_before_save
         end
       end
 
       module InstanceMethods
-
-        def watcher_user_ids_with_advanced=(user_ids)
-          notes = []
-          user_ids.each do |user_id|
-            principal = Principal.find_by_id(user_id)
-            if principal.is_a?(User)
-              notes.append("Watcher #{principal.name} was added")
+        def create_journal_with_advanced_history
+          if self.current_journal.present?
+            before = self.issue_watchers_advanced_history_before_save || []
+            after = self.watcher_user_ids || []
+            new_watchers = after - before
+            new_users = []
+            if new_watchers.any?
+              new_watchers.each do |principal_id|
+                principal = Principal.find_by_id(principal_id)
+                if principal.is_a?(User)
+                  new_users.append(principal)
+                end
+                if principal.is_a?(Group)
+                  new_users += principal.users
+                end
+              end
             end
-            if principal.is_a?(Group)
-              principal.users.each do |pr_user|
-                notes.append("Watcher #{pr_user.name} was added")
+            new_users = new_users.compact.uniq
+            if new_users.compact.uniq.any?
+              new_users.each do |user|
+                self.current_journal.details << JournalDetail.new(:property => 'system',
+                                                              :prop_key => 'system',
+                                                              :value => "Watcher #{user.name} was added")
               end
             end
           end
-          if notes.any?
-            journal_detail_ids = []
-            notes.each do |note|
-              journal_details = JournalDetail.new
-              journal_details.property = 'system'
-              journal_details.prop_key = 'system'
-              journal_details.value = note
-              journal_details.save!
-              journal_detail_ids.append(journal_details.id)
-            end
-            journal = Journal.new(:user => User.current, :notes => "", :notify => false)
-            journal.detail_ids = journal_detail_ids
-            journal.save!
-            self.journal_ids=self.journal_ids | [journal.id]
-          end
-          send :watcher_user_ids_without_advanced=, user_ids
+          create_journal_without_advanced_history
+        end
+
+        def init_journal_with_advanced_history(user, notes = "")
+          self.issue_watchers_advanced_history_before_save ||= self.watcher_user_ids
+          init_journal_without_advanced_history(user, notes)
         end
 
       end
@@ -118,3 +122,29 @@ module RedmineAdvancedIssueHistory
 end
 Issue.send(:include, RedmineAdvancedIssueHistory::Patches::IssuePatch)
 
+module RedmineAdvancedIssueHistory
+  module Patches
+    module IssuesControllerPatch
+
+      def self.included(base)
+        base.send(:include, InstanceMethods)
+        base.class_eval do
+        alias_method_chain :build_new_issue_from_params, :advanced_history
+        end
+      end
+
+      module InstanceMethods
+
+        def build_new_issue_from_params_with_advanced_history
+          build_new_issue_from_params_without_advanced_history
+          if params.has_key?(:issue) and params[:issue].has_key?(:watcher_user_ids)
+            @issue.issue_watchers_advanced_history_before_save = params[:issue][:watcher_user_ids]
+          end
+          @issue.init_journal(User.current)
+        end
+
+      end
+    end
+  end
+end
+IssuesController.send(:include, RedmineAdvancedIssueHistory::Patches::IssuesControllerPatch)
