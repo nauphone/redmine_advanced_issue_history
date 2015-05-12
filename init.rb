@@ -1,6 +1,5 @@
 require 'redmine_advanced_issue_history/hooks/controller_issues_new_after_save_hook'
 require 'redmine_advanced_issue_history/hooks/issue_history_tab_hook'
-require 'redmine_advanced_issue_history/patches/issue_relations_patch'
 require 'redmine_advanced_issue_history/patches/issues_helper_patch'
 require 'redmine_advanced_issue_history/patches/watcher_patch'
 require 'redmine_advanced_issue_history/patches/journal_patch'
