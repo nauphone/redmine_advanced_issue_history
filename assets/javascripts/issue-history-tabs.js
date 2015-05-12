@@ -44,7 +44,7 @@ $(document).ready(function () {
   $('.journal.has-notes, .journal.has-details, .journal:has(a[href*="/attachments/"])').each(function (index) {
     has_comments = true;
     var el = $(this).clone();
-    if(!el.hasClass('has-system')){
+    if(!el.hasClass('has-system') || el.hasClass('has-notes')){
       el.appendTo($('#tab-content-comments'));
     }
   });
