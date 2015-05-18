@@ -88,6 +88,16 @@ module RedmineAdvancedIssueHistory
             after = self.watcher_user_ids || []
             new_watchers = after - before
             new_users = []
+            if !self.assigned_to.blank? and self.addable_watcher_users.include?(self.assigned_to)
+              new_users.append(self.assigned_to)
+              self.watcher_user_ids = self.watcher_user_ids | [self.assigned_to_id]
+            end
+            # Add the current user if they are addable
+            if self.addable_watcher_users.include?(User.current) and !self.watcher_users.include?(User.current)
+              new_users.append(User.current)
+              self.watcher_user_ids = self.watcher_user_ids | [User.current.id]
+            end
+
             if new_watchers.any?
               new_watchers.each do |principal_id|
                 principal = Principal.find_by_id(principal_id)
