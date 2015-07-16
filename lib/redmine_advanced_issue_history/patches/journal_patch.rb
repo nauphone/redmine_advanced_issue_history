@@ -19,6 +19,9 @@ module RedmineAdvancedIssueHistory
           if details.where(:prop_key => "system").any?
             css << " has-system"
           end
+          if not details.where("prop_key != 'system'").any? and details.any?
+            css = css.sub(' has-details', '')
+          end
           css
         end
 
