@@ -48,12 +48,13 @@ module RedmineAdvancedIssueHistory
           else
             user_ids << params[:user_id]
           end
+          watched = @watched || @watchable
           users = User.active.visible.where(:id => user_ids.flatten.compact.uniq).to_a
           users.each do |user|
-            Watcher.create(:watchable => @watched, :user => user)
+            Watcher.create(:watchable => watched, :user => user)
             notes.append("Watcher #{user.name} was added")
           end
-          add_system_journal(notes, @watched)
+          add_system_journal(notes, watched)
 
           respond_to do |format|
             format.html { redirect_to_referer_or {render :text => 'Watcher added.', :layout => true}}
